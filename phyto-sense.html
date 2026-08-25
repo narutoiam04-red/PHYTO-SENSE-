@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHYTO-SENSE ∞ — Living-Sensor Network for Nutrient Stress Recovery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e1913;
+    --bg-deep:#0a130e;
+    --panel:#152a1f;
+    --panel-2:#1b3325;
+    --line:#2c4636;
+    --ink:#e9efe6;
+    --ink-dim:#a9bcae;
+    --amber:#f0b429;
+    --green:#6fcf97;
+    --blue:#6fb5e8;
+    --red:#e8735d;
+    --serif:'Fraunces', serif;
+    --sans:'IBM Plex Sans', sans-serif;
+    --mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--amber); color:var(--bg-deep);}
+
+  .wrap{max-width:640px; margin:0 auto; padding:0 22px;}
+
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(111,207,151,0.06), transparent 40%),
+      radial-gradient(circle at 85% 85%, rgba(111,181,232,0.05), transparent 45%);
+    pointer-events:none; z-index:0;
+  }
+
+  section{position:relative; z-index:1;}
+
+  /* ---------- WATERMARK ---------- */
+  .watermark{
+    position:fixed; right:14px; bottom:12px; z-index:50;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:0.06em;
+    color:var(--ink-dim); opacity:0.55;
+    background:rgba(14,25,19,0.55); backdrop-filter:blur(3px);
+    padding:5px 10px; border:1px solid var(--line); border-radius:20px;
+    pointer-events:none;
+    user-select:none;
+  }
+  .watermark span{color:var(--amber);}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:92vh;
+    display:flex; flex-direction:column; justify-content:center;
+    padding:70px 22px 50px;
+    border-bottom:1px solid var(--line);
+  }
+  .hero-eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.18em;
+    color:var(--green); text-transform:uppercase; margin-bottom:22px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 2.2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.35;}}
+  .hero h1{
+    font-family:var(--serif); font-weight:600; font-optical-sizing:auto;
+    font-size:clamp(2.6rem, 12vw, 4.2rem);
+    line-height:0.98; letter-spacing:-0.01em;
+    color:var(--ink);
+  }
+  .hero h1 .infinity{color:var(--amber); font-style:italic; font-weight:500;}
+  .hero-sub{
+    margin-top:20px; max-width:46ch;
+    font-size:16px; color:var(--ink-dim); font-weight:400;
+  }
+  .hero-question{
+    margin-top:36px;
+    padding:20px 20px 20px 18px;
+    border-left:2px solid var(--amber);
+    background:linear-gradient(90deg, rgba(240,180,41,0.06), transparent);
+    font-family:var(--serif); font-style:italic; font-size:19px; line-height:1.45;
+    color:var(--ink);
+  }
+
+  .flow{
+    margin-top:44px;
+    display:flex; flex-wrap:wrap; gap:0;
+    font-family:var(--mono); font-size:11.5px; letter-spacing:0.02em;
+    color:var(--ink-dim);
+  }
+  .flow span{padding:6px 0;}
+  .flow .arrow{color:var(--green); margin:0 8px; opacity:0.6;}
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  .section{padding:64px 22px; border-bottom:1px solid var(--line);}
+  .section-label{
+    font-family:var(--mono); font-size:11px; letter-spacing:0.16em;
+    color:var(--amber); text-transform:uppercase; margin-bottom:14px;
+  }
+  .section h2{
+    font-family:var(--serif); font-weight:600; font-size:clamp(1.5rem,6vw,2.1rem);
+    letter-spacing:-0.01em; margin-bottom:16px; color:var(--ink);
+  }
+  .section p{color:var(--ink-dim); font-size:15px; max-width:56ch;}
+  .section p + p{margin-top:12px;}
+
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity 0.7s ease, transform 0.7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ---------- SPECIMEN GRID + PLANT ART ---------- */
+  .specimens{display:flex; flex-direction:column; gap:14px; margin-top:24px;}
+  .specimen{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:18px 20px; position:relative; overflow:hidden;
+  }
+  .specimen::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+  }
+  .specimen.p1::before{background:var(--green);}
+  .specimen.p2::before{background:var(--amber);}
+  .specimen.p3::before{background:var(--blue);}
+  .specimen-top{display:flex; gap:14px; align-items:center;}
+  .specimen-art{width:56px; height:64px; flex-shrink:0;}
+  .specimen-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;}
+  .specimen-id{font-family:var(--mono); font-size:13px; color:var(--ink-dim);}
+  .specimen-name{font-family:var(--serif); font-size:20px; font-weight:600;}
+  .specimen-desc{font-size:14px; color:var(--ink-dim); margin-top:2px;}
+
+  /* ---------- NODE SWITCHER + OLED ---------- */
+  .node-tabs{display:flex; gap:8px; margin-top:26px;}
+  .node-tab{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.05em;
+    padding:8px 16px; border-radius:20px; border:1px solid var(--line);
+    background:transparent; color:var(--ink-dim); cursor:pointer;
+    transition:all 0.2s ease;
+  }
+  .node-tab.active{background:var(--panel-2); color:var(--amber); border-color:var(--amber);}
+  .oled-frame{
+    margin-top:16px;
+    background:#0a1410; border:1px solid var(--line); border-radius:16px;
+    padding:22px; box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
+  }
+  .oled-screen{
+    background:#020a05;
+    border-radius:4px;
+    padding:16px 18px;
+    font-family:var(--mono); color:var(--amber);
+    font-size:13px; line-height:1.75;
+    box-shadow: inset 0 0 24px rgba(240,180,41,0.06);
+  }
+  .oled-title{color:var(--green); font-size:12px; letter-spacing:0.12em; margin-bottom:10px; opacity:0.9;}
+  .oled-row{display:flex; justify-content:space-between; color:var(--amber);}
+  .oled-row .k{color:#c9d9c0; opacity:0.75;}
+  .oled-state{margin-top:10px; padding-top:10px; border-top:1px dashed rgba(240,180,41,0.25); font-size:12px; letter-spacing:0.08em;}
+
+  /* ---------- LED LEGEND ---------- */
+  .led-grid{margin-top:24px; display:grid; grid-template-columns:1fr; gap:12px;}
+  .led-item{display:flex; gap:14px; align-items:flex-start; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px; cursor:pointer; transition:border-color 0.2s ease;}
+  .led-item:hover{border-color:var(--ink-dim);}
+  .led-bulb{width:14px; height:14px; border-radius:50%; margin-top:3px; flex-shrink:0; transition:box-shadow 0.2s ease, transform 0.15s ease;}
+  .led-bulb.g{background:var(--green); box-shadow:0 0 4px var(--green);}
+  .led-bulb.y{background:var(--amber); box-shadow:0 0 4px var(--amber);}
+  .led-bulb.b{background:var(--blue); box-shadow:0 0 4px var(--blue);}
+  .led-bulb.r{background:var(--red); box-shadow:0 0 4px var(--red);}
+  .led-item.lit .led-bulb{box-shadow:0 0 16px currentColor; transform:scale(1.15);}
+  .led-item.lit .led-bulb.g{box-shadow:0 0 16px var(--green);}
+  .led-item.lit .led-bulb.y{box-shadow:0 0 16px var(--amber);}
+  .led-item.lit .led-bulb.b{box-shadow:0 0 16px var(--blue);}
+  .led-item.lit .led-bulb.r{box-shadow:0 0 16px var(--red);}
+  .led-text .t{font-family:var(--mono); font-size:12px; letter-spacing:0.06em; color:var(--ink); margin-bottom:2px;}
+  .led-text .d{font-size:13.5px; color:var(--ink-dim);}
+  .led-hint{margin-top:10px; font-family:var(--mono); font-size:11px; color:var(--ink-dim); opacity:0.6;}
+
+  /* ---------- WIRING DIAGRAM ---------- */
+  .wiring-wrap{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px;}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{margin-top:28px; position:relative; padding-left:28px;}
+  .timeline::before{content:""; position:absolute; left:9px; top:6px; bottom:6px; width:1px; background:var(--line);}
+  .phase{position:relative; padding-bottom:34px;}
+  .phase:last-child{padding-bottom:0;}
+  .phase::before{
+    content:""; position:absolute; left:-28px; top:3px; width:10px; height:10px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--green);
+  }
+  .phase.active::before{border-color:var(--amber); box-shadow:0 0 10px var(--amber);}
+  .phase-num{font-family:var(--mono); font-size:11px; color:var(--ink-dim); letter-spacing:0.1em;}
+  .phase-title{font-family:var(--serif); font-size:19px; font-weight:600; margin:2px 0 6px;}
+  .phase-desc{font-size:14px; color:var(--ink-dim); max-width:50ch;}
+
+  /* ---------- RECOVERY CURVE ---------- */
+  .curve-wrap{margin-top:30px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px 18px 14px;}
+  .curve-caption{font-family:var(--mono); font-size:11px; color:var(--ink-dim); letter-spacing:0.06em; margin-top:12px; display:flex; justify-content:space-between;}
+  #curvePath{
+    stroke-dasharray:600; stroke-dashoffset:600;
+    transition:stroke-dashoffset 2.2s cubic-bezier(.22,.61,.36,1);
+  }
+  #curvePath.draw{stroke-dashoffset:0;}
+  .curve-zone{font-family:var(--mono); font-size:10px; fill:var(--ink-dim); letter-spacing:0.04em;}
+
+  /* ---------- COMPARISON CHART (P1/P2/P3 leaf area) ---------- */
+  .chart-wrap{margin-top:26px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px 18px 16px;}
+  .chart-legend{display:flex; gap:18px; margin-top:14px; font-family:var(--mono); font-size:11.5px; color:var(--ink-dim);}
+  .chart-legend .lg{display:flex; align-items:center; gap:6px;}
+  .lg-dot{width:9px; height:9px; border-radius:50%;}
+  .chart-path{fill:none; stroke-width:2.2; stroke-dasharray:500; stroke-dashoffset:500; transition:stroke-dashoffset 1.8s ease;}
+  .chart-path.draw{stroke-dashoffset:0;}
+
+  /* ---------- VECTOR / EQUATION ---------- */
+  .vector-box{
+    margin-top:24px; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    padding:20px; font-family:var(--mono); font-size:14px; color:var(--green);
+    overflow-x:auto; white-space:nowrap;
+  }
+  .vector-legend{margin-top:14px; display:grid; grid-template-columns:repeat(2,1fr); gap:8px 16px; font-size:12.5px; color:var(--ink-dim); font-family:var(--mono);}
+  .vector-legend span{color:var(--amber);}
+
+  /* ---------- COMPARISON TABLE ---------- */
+  .comp-table{margin-top:24px; border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  .comp-row{display:grid; grid-template-columns:1fr 1.3fr 1.3fr; font-size:13.5px;}
+  .comp-row > div{padding:12px 10px; border-bottom:1px solid var(--line); border-right:1px solid var(--line);}
+  .comp-row > div:last-child{border-right:none;}
+  .comp-row:last-child > div{border-bottom:none;}
+  .comp-row.head{background:var(--panel-2); font-family:var(--mono); font-size:11px; letter-spacing:0.08em; color:var(--ink-dim); text-transform:uppercase;}
+  .comp-row .yes{color:var(--green); font-family:var(--mono);}
+  .comp-row .no{color:var(--ink-dim); font-family:var(--mono); opacity:0.5;}
+
+  /* ---------- CONTROLS CHECKLIST ---------- */
+  .checklist{margin-top:22px; display:flex; flex-direction:column; gap:9px;}
+  .check-item{display:flex; gap:10px; align-items:center; font-size:14px; color:var(--ink-dim); font-family:var(--mono);}
+  .check-item::before{content:"—"; color:var(--green);}
+
+  /* ---------- EXHIBITION MAP ---------- */
+  .exhibit{margin-top:26px; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:var(--panel);}
+  .exhibit-top{text-align:center; padding:14px; font-family:var(--serif); font-weight:600; font-size:17px; border-bottom:1px solid var(--line); letter-spacing:0.02em;}
+  .exhibit-mid{display:grid; grid-template-columns:1fr 1fr 1fr; min-height:140px;}
+  .exhibit-mid > div{padding:14px 10px; font-size:12px; color:var(--ink-dim); border-right:1px solid var(--line);}
+  .exhibit-mid > div:last-child{border-right:none;}
+  .exhibit-mid .em-label{font-family:var(--mono); font-size:10px; color:var(--amber); letter-spacing:0.08em; margin-bottom:8px; display:block;}
+  .exhibit-bottom{padding:14px; text-align:center; font-family:var(--mono); font-size:11px; color:var(--ink-dim); border-top:1px solid var(--line); letter-spacing:0.02em;}
+
+  .path{margin-top:26px; display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-family:var(--mono); font-size:12px; color:var(--ink-dim);}
+  .path .node{color:var(--ink); padding:5px 10px; border:1px solid var(--line); border-radius:6px;}
+  .path .arrow{color:var(--green); opacity:0.7;}
+
+  footer{padding:50px 22px 90px; text-align:center;}
+  footer .fmark{font-family:var(--serif); font-style:italic; color:var(--ink-dim); font-size:14px;}
+  footer .fsign{margin-top:10px; font-family:var(--mono); font-size:11px; color:var(--ink-dim); opacity:0.6; letter-spacing:0.05em;}
+  footer .fsign span{color:var(--amber);}
+
+  @media (min-width:600px){
+    .specimens{flex-direction:row;}
+    .specimen{flex:1;}
+    .led-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="watermark">made by <span>Sandesh Chaitanya</span></div>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow"><span class="dot"></span>NCSC RESEARCH PROJECT — LIVE MONITORING PROTOTYPE</div>
+    <h1>PHYTO-SENSE <span class="infinity">∞</span></h1>
+    <p class="hero-sub">A multimodal living-sensor network for non-destructive detection and recovery monitoring of plant nutrient stress.</p>
+    <div class="hero-question">
+      Can measurements from living plants, combined with environmental sensors, detect experimentally induced nutrient stress — and track recovery after nutrient restoration is applied?
+    </div>
+    <div class="flow">
+      <span>ENVIRONMENT</span><span class="arrow">→</span>
+      <span>LIVING RESPONSE</span><span class="arrow">→</span>
+      <span>MEASUREMENT</span><span class="arrow">→</span>
+      <span>INTELLIGENCE</span><span class="arrow">→</span>
+      <span>RECOVERY</span>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">01 — Experimental Setup</div>
+    <h2>Three plants, one comparison</h2>
+    <p>Same species, same starting size, same pot, same medium, same light and temperature, measured at the same time. The only variable that's allowed to differ is nutrition.</p>
+    <div class="specimens">
+      <div class="specimen p1">
+        <div class="specimen-top">
+          <svg class="specimen-art" viewBox="0 0 56 64">
+            <ellipse cx="28" cy="58" rx="16" ry="4" fill="#0a130e"/>
+            <path d="M18 58 L22 40 L34 40 L38 58 Z" fill="#2c4636"/>
+            <path d="M28 40 C28 40 24 20 28 8 C32 20 28 40 28 40" stroke="#6fcf97" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M28 26 C22 22 16 24 14 18 C22 18 27 22 28 26" fill="#6fcf97"/>
+            <path d="M28 26 C34 22 40 24 42 18 C34 18 29 22 28 26" fill="#6fcf97"/>
+            <path d="M28 16 C24 12 20 13 18 8 C24 8 27 12 28 16" fill="#6fcf97"/>
+            <path d="M28 16 C32 12 36 13 38 8 C32 8 29 12 28 16" fill="#6fcf97"/>
+          </svg>
+          <div>
+            <div class="specimen-head"><span class="specimen-name">P1</span><span class="specimen-id">CONTROL</span></div>
+            <div class="specimen-desc">Complete nutrition throughout. The reference for normal variation.</div>
+          </div>
+        </div>
+      </div>
+      <div class="specimen p2">
+        <div class="specimen-top">
+          <svg class="specimen-art" viewBox="0 0 56 64">
+            <ellipse cx="28" cy="58" rx="16" ry="4" fill="#0a130e"/>
+            <path d="M18 58 L22 40 L34 40 L38 58 Z" fill="#2c4636"/>
+            <path d="M28 40 C28 40 25 22 28 10 C31 22 28 40 28 40" stroke="#f0b429" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M28 27 C23 24 18 26 16 21 C23 20 27 24 28 27" fill="#d9c05a"/>
+            <path d="M28 27 C33 24 38 26 40 21 C33 20 29 24 28 27" fill="#8fbf7a"/>
+            <path d="M28 18 C25 15 21 16 19 12 C24 12 27 15 28 18" fill="#d9c05a"/>
+          </svg>
+          <div>
+            <div class="specimen-head"><span class="specimen-name">P2</span><span class="specimen-id">GROUP A</span></div>
+            <div class="specimen-desc">Controlled nutrient-limitation condition A. Early chlorosis expected.</div>
+          </div>
+        </div>
+      </div>
+      <div class="specimen p3">
+        <div class="specimen-top">
+          <svg class="specimen-art" viewBox="0 0 56 64">
+            <ellipse cx="28" cy="58" rx="16" ry="4" fill="#0a130e"/>
+            <path d="M18 58 L22 40 L34 40 L38 58 Z" fill="#2c4636"/>
+            <path d="M28 40 C28 40 26 24 28 14 C30 24 28 40 28 40" stroke="#6fb5e8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path d="M28 28 C24 26 20 28 18 24 C23 23 26 26 28 28" fill="#c98f5e"/>
+            <path d="M28 28 C32 26 36 28 38 24 C33 23 30 26 28 28" fill="#8fbf7a"/>
+          </svg>
+          <div>
+            <div class="specimen-head"><span class="specimen-name">P3</span><span class="specimen-id">GROUP B</span></div>
+            <div class="specimen-desc">Controlled nutrient-limitation condition B, distinct from A.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">02 — Sensing Layer</div>
+    <h2>What each node measures</h2>
+    <p>Per-plant: an ESP32 reads soil moisture and a DS18B20 probe. Shared across the array: a BME280 for air temperature and humidity, a BH1750 for light intensity, an MLX90614 for non-contact leaf-surface temperature, and a camera for leaf area, colour, and growth morphology.</p>
+
+    <div class="wiring-wrap">
+      <svg viewBox="0 0 560 260" width="100%" height="auto">
+        <rect x="230" y="105" width="100" height="50" rx="8" fill="#1b3325" stroke="#6fcf97" stroke-width="1.5"/>
+        <text x="280" y="135" text-anchor="middle" fill="#6fcf97" font-family="IBM Plex Mono" font-size="13">ESP32</text>
+
+        <line x1="230" y1="120" x2="100" y2="40" stroke="#2c4636" stroke-width="1.5"/>
+        <rect x="20" y="18" width="130" height="36" rx="6" fill="#152a1f" stroke="#2c4636"/>
+        <text x="85" y="41" text-anchor="middle" fill="#e9efe6" font-family="IBM Plex Mono" font-size="11">Soil Moisture</text>
+
+        <line x1="230" y1="135" x2="100" y2="135" stroke="#2c4636" stroke-width="1.5"/>
+        <rect x="20" y="117" width="130" height="36" rx="6" fill="#152a1f" stroke="#2c4636"/>
+        <text x="85" y="140" text-anchor="middle" fill="#e9efe6" font-family="IBM Plex Mono" font-size="11">DS18B20 Probe</text>
+
+        <line x1="230" y1="150" x2="100" y2="225" stroke="#2c4636" stroke-width="1.5"/>
+        <rect x="20" y="207" width="130" height="36" rx="6" fill="#152a1f" stroke="#2c4636"/>
+        <text x="85" y="230" text-anchor="middle" fill="#e9efe6" font-family="IBM Plex Mono" font-size="11">MicroSD + RTC</text>
+
+        <line x1="330" y1="120" x2="460" y2="40" stroke="#2c4636" stroke-width="1.5"/>
+        <rect x="410" y="18" width="130" height="36" rx="6" fill="#152a1f" stroke="#2c4636"/>
+        <text x="475" y="41" text-anchor="middle" fill="#e9efe6" font-family="IBM Plex Mono" font-size="11">BME280 + BH1750</text>
+
+        <line x1="330" y1="135" x2="460" y2="135" stroke="#2c4636" stroke-width="1.5"/>
+        <rect x="410" y="117" width="130" height="36" rx="6" fill="#152a1f" stroke="#2c4636"/>
+        <text x="475" y="140" text-anchor="middle" fill="#e9efe6" font-family="IBM Plex Mono" font-size="11">MLX90614</text>
+
+        <line x1="330" y1="150" x2="460" y2="225" stroke="#2c4636" stroke-width="1.5"/>
+        <rect x="410" y="207" width="130" height="36" rx="6" fill="#152a1f" stroke="#2c4636"/>
+        <text x="475" y="230" text-anchor="middle" fill="#e9efe6" font-family="IBM Plex Mono" font-size="11">Camera</text>
+      </svg>
+    </div>
+
+    <div class="node-tabs">
+      <button class="node-tab active" data-node="P01">P1</button>
+      <button class="node-tab" data-node="P02">P2</button>
+      <button class="node-tab" data-node="P03">P3</button>
+    </div>
+    <div class="oled-frame">
+      <div class="oled-screen">
+        <div class="oled-title" id="oledTitle">PHYTO-SENSE ∞ · NODE: P01</div>
+        <div class="oled-row"><span class="k">TEMP</span><span id="vTemp">28.4 C</span></div>
+        <div class="oled-row"><span class="k">HUM</span><span id="vHum">63.0 %</span></div>
+        <div class="oled-row"><span class="k">SOIL</span><span id="vSoil">54.0 %</span></div>
+        <div class="oled-row"><span class="k">LEAF</span><span id="vLeaf">29.1 C</span></div>
+        <div class="oled-row"><span class="k">LIGHT</span><span id="vLight">861 lx</span></div>
+        <div class="oled-state" id="oledState" style="color:#6fcf97;">STATE: REFERENCE</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">03 — Status Indicators</div>
+    <h2>What the LEDs mean</h2>
+    <p>System states, not diagnoses. Every colour maps to a measured condition, never a claim. Tap one to preview it.</p>
+    <div class="led-grid">
+      <div class="led-item" data-led="g"><span class="led-bulb g"></span><div class="led-text"><div class="t">REFERENCE</div><div class="d">Normal operating state, tracking baseline.</div></div></div>
+      <div class="led-item" data-led="y"><span class="led-bulb y"></span><div class="led-text"><div class="t">DEVIATION</div><div class="d">Significant measured deviation from baseline.</div></div></div>
+      <div class="led-item" data-led="b"><span class="led-bulb b"></span><div class="led-text"><div class="t">RECOVERY</div><div class="d">Post-restoration monitoring in progress.</div></div></div>
+      <div class="led-item" data-led="r"><span class="led-bulb r"></span><div class="led-text"><div class="t">THRESHOLD</div><div class="d">Predefined experimental warning threshold crossed.</div></div></div>
+    </div>
+    <div class="led-hint">tap a state to preview its indicator</div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">04 — Protocol</div>
+    <h2>Four phases, in order</h2>
+    <div class="timeline">
+      <div class="phase active">
+        <div class="phase-num">PHASE 1</div>
+        <div class="phase-title">Baseline</div>
+        <div class="phase-desc">All three plants receive identical, normal conditions. Establishes what "normal" looks like across every sensor channel.</div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 2</div>
+        <div class="phase-title">Controlled condition</div>
+        <div class="phase-desc">Nutrient-limitation is introduced mildly, under supervision, to P2 and P3. Measurement continues without interruption.</div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 3</div>
+        <div class="phase-title">Restoration</div>
+        <div class="phase-desc">Experimental plants return to appropriate nutrition. Recovery is measured, never assumed.</div>
+      </div>
+      <div class="phase">
+        <div class="phase-num">PHASE 4</div>
+        <div class="phase-title">Recovery</div>
+        <div class="phase-desc">Growth, leaf measurements, temperature, moisture and image features are tracked against baseline and control.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">05 — The Central Claim</div>
+    <h2>Stress and recovery, in one curve</h2>
+    <p>Most school projects stop at "the plant became stressed." This one asks what happens next — the recovery curve is where the real result lives.</p>
+    <div class="curve-wrap">
+      <svg viewBox="0 0 560 200" width="100%" height="auto">
+        <line x1="20" y1="170" x2="540" y2="170" stroke="#2c4636" stroke-width="1"/>
+        <line x1="20" y1="20" x2="20" y2="170" stroke="#2c4636" stroke-width="1"/>
+        <text x="60" y="188" class="curve-zone">BASELINE</text>
+        <text x="220" y="188" class="curve-zone">STRESS</text>
+        <text x="400" y="188" class="curve-zone">RECOVERY</text>
+        <path id="curvePath" d="M20,80 C90,80 130,80 170,80 C230,80 250,150 290,155 C330,158 350,140 390,110 C430,85 460,68 540,60"
+          fill="none" stroke="#f0b429" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="170" cy="80" r="4" fill="#6fcf97"/>
+        <circle cx="290" cy="155" r="4" fill="#e8735d"/>
+        <circle cx="540" cy="60" r="4" fill="#6fb5e8"/>
+      </svg>
+      <div class="curve-caption"><span>0 — response profile, arbitrary units</span><span>t →</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">06 — Growth Comparison</div>
+    <h2>Projected leaf area over time</h2>
+    <p>Each plant's leaf area, normalized against its own Day-0 baseline, so shape — not raw size — drives the comparison.</p>
+    <div class="chart-wrap">
+      <svg viewBox="0 0 560 200" width="100%" height="auto">
+        <line x1="20" y1="170" x2="540" y2="170" stroke="#2c4636" stroke-width="1"/>
+        <line x1="20" y1="20" x2="20" y2="170" stroke="#2c4636" stroke-width="1"/>
+        <text x="6" y="24" class="curve-zone">+20%</text>
+        <text x="6" y="98" class="curve-zone">0%</text>
+        <text x="6" y="174" class="curve-zone">-20%</text>
+        <text x="20" y="188" class="curve-zone">DAY 0</text>
+        <text x="500" y="188" class="curve-zone">DAY 21</text>
+        <path class="chart-path" data-delay="0" d="M20,96 L100,88 L180,80 L260,74 L340,66 L420,58 L540,48" stroke="#6fcf97"/>
+        <path class="chart-path" data-delay="200" d="M20,96 L100,104 L180,126 L260,148 L340,140 L420,118 L540,92" stroke="#f0b429"/>
+        <path class="chart-path" data-delay="400" d="M20,96 L100,108 L180,138 L260,158 L340,150 L420,124 L540,86" stroke="#6fb5e8"/>
+      </svg>
+      <div class="chart-legend">
+        <div class="lg"><span class="lg-dot" style="background:#6fcf97;"></span>P1 control</div>
+        <div class="lg"><span class="lg-dot" style="background:#f0b429;"></span>P2 group A</div>
+        <div class="lg"><span class="lg-dot" style="background:#6fb5e8;"></span>P3 group B</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">07 — Analysis</div>
+    <h2>A multivariable response profile</h2>
+    <p>Instead of reading any single channel in isolation, every timestamp becomes one vector across all measured dimensions.</p>
+    <div class="vector-box">X(t) = [ T, H, M, L, T<sub style="font-size:10px;">l</sub>, A, G, C ]</div>
+    <div class="vector-legend">
+      <div><span>T</span> air temp</div>
+      <div><span>H</span> humidity</div>
+      <div><span>M</span> soil moisture</div>
+      <div><span>L</span> light</div>
+      <div><span>Tl</span> leaf temp</div>
+      <div><span>A</span> leaf area</div>
+      <div><span>G</span> growth</div>
+      <div><span>C</span> colour features</div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">08 — The Core Experiment</div>
+    <h2>Does combining data sources add information?</h2>
+    <p>Three configurations are compared directly against each other.</p>
+    <div class="comp-table">
+      <div class="comp-row head"><div>System</div><div>Environmental</div><div>Plant data</div></div>
+      <div class="comp-row"><div>A</div><div class="yes">✓ present</div><div class="no">absent</div></div>
+      <div class="comp-row"><div>B</div><div class="no">absent</div><div class="yes">✓ present</div></div>
+      <div class="comp-row"><div>C</div><div class="yes">✓ present</div><div class="yes">✓ present</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">09 — Rigor</div>
+    <h2>Controls &amp; uncertainty</h2>
+    <div class="checklist">
+      <div class="check-item">same species, same starting plant size</div>
+      <div class="check-item">same pot type, same growing medium</div>
+      <div class="check-item">same light exposure, same measurement time</div>
+      <div class="check-item">same watering and sensor procedure</div>
+      <div class="check-item">same camera position for every image</div>
+      <div class="check-item">P1 as reference for normal variation</div>
+    </div>
+    <p style="margin-top:20px;">Precision is reported at the level the sensor actually supports — mean, standard deviation, measurement error, percentage change, and confidence intervals where appropriate. Not false digits.</p>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="wrap">
+    <div class="section-label">10 — Exhibition Layout</div>
+    <h2>The physical display</h2>
+    <div class="exhibit">
+      <div class="exhibit-top">PHYTO-SENSE ∞</div>
+      <div class="exhibit-mid">
+        <div><span class="em-label">LEFT</span>Three living plants — P1, P2, P3, side by side.</div>
+        <div><span class="em-label">CENTER</span>ESP32 array, sensors, OLED readout, LED status ring, MicroSD log.</div>
+        <div><span class="em-label">RIGHT</span>Graphs, daily plant images, recovery curves, statistical results.</div>
+      </div>
+      <div class="exhibit-bottom">ENVIRONMENT → LIVING RESPONSE → MEASUREMENT → INTELLIGENCE → RECOVERY</div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" style="border-bottom:none;">
+  <div class="wrap">
+    <div class="section-label">11 — Where This Goes</div>
+    <h2>From prototype to conclusion</h2>
+    <p>Three plants validate the system. A real NCSC conclusion needs enough replication to separate a treatment effect from ordinary differences between individual plants.</p>
+    <div class="path">
+      <span class="node">3 plants</span><span class="arrow">→</span>
+      <span class="node">working prototype</span><span class="arrow">→</span>
+      <span class="node">refine protocol</span><span class="arrow">→</span>
+      <span class="node">replicate</span><span class="arrow">→</span>
+      <span class="node">analyze data</span><span class="arrow">→</span>
+      <span class="node">final conclusion</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fmark">PHYTO-SENSE ∞ — a real experimental investigation, not just an electronics project.</div>
+  <div class="fsign">made by <span>Sandesh Chaitanya</span></div>
+</footer>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); } });
+  }, {threshold:0.15});
+  revealEls.forEach(el=>io.observe(el));
+
+  const curve = document.getElementById('curvePath');
+  const curveWrap = document.querySelector('.curve-wrap');
+  const io2 = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ curve.classList.add('draw'); io2.disconnect(); } });
+  }, {threshold:0.3});
+  if(curveWrap) io2.observe(curveWrap);
+
+  const chartPaths = document.querySelectorAll('.chart-path');
+  const chartWrap = document.querySelector('.chart-wrap');
+  const io3 = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        chartPaths.forEach(p=> setTimeout(()=> p.classList.add('draw'), parseInt(p.dataset.delay)) );
+        io3.disconnect();
+      }
+    });
+  }, {threshold:0.25});
+  if(chartWrap) io3.observe(chartWrap);
+
+  const nodeData = {
+    P01: {temp:'28.4 C', hum:'63.0 %', soil:'54.0 %', leaf:'29.1 C', light:'861 lx', state:'STATE: REFERENCE', color:'#6fcf97'},
+    P02: {temp:'28.5 C', hum:'62.4 %', soil:'48.2 %', leaf:'30.1 C', light:'842 lx', state:'STATE: DEVIATION', color:'#f0b429'},
+    P03: {temp:'28.4 C', hum:'63.1 %', soil:'51.0 %', leaf:'29.6 C', light:'849 lx', state:'STATE: MONITORING', color:'#6fb5e8'}
+  };
+  document.querySelectorAll('.node-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.node-tab').forEach(t=>t.classList.remove('active'));
+      tab.classList.add('active');
+      const d = nodeData[tab.dataset.node];
+      document.getElementById('oledTitle').textContent = 'PHYTO-SENSE ∞ · NODE: ' + tab.dataset.node;
+      document.getElementById('vTemp').textContent = d.temp;
+      document.getElementById('vHum').textContent = d.hum;
+      document.getElementById('vSoil').textContent = d.soil;
+      document.getElementById('vLeaf').textContent = d.leaf;
+      document.getElementById('vLight').textContent = d.light;
+      const st = document.getElementById('oledState');
+      st.textContent = d.state;
+      st.style.color = d.color;
+    });
+  });
+
+  document.querySelectorAll('.led-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      const already = item.classList.contains('lit');
+      document.querySelectorAll('.led-item').forEach(i=>i.classList.remove('lit'));
+      if(!already) item.classList.add('lit');
+    });
+  });
+</script>
+
+</body>
+</html>
